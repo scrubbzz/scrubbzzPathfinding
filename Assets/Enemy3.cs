@@ -1,12 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System;
+using System.Threading;
+/// <summary>
+/// every update Move along path if path is avialable
+/// if( last node is not equal to player){
+/// find a new path
+///     checking if there apth currently getting calulauted
+///     if not
+///         Get the path in the trhread
+///         start a new thread to find path 
+/// }
+/// </summary>
 public class Enemy3 : MonoBehaviour
 {
+    #region Old Version
     public AStar aStar;
-    public Vector3Int start;
-    public Vector3Int end;
+    #endregion
+
+    #region New Version
+    AStar PathFinder;
+    protected int cellCountXX = 50;
+    int cellCountZ = 50;
+
+    int cellSizeX = 1;
+    int cellSizeZ = 1;
+
+    public int chaseRange;
+    #endregion
+    //public Vector3Int start;
+    //public Vector3Int end;
 
     public Rigidbody rb;//rb of agent.
     public Transform targetTransform;//Object the agent is trying to move to.
@@ -14,45 +38,118 @@ public class Enemy3 : MonoBehaviour
     public float moveSpeed;
 
     public Vector3 previousTargetTransform;//Agent needs to move to a specific spot the target was on at somepoint, this variable saves that point.
+    private bool findingPath;
+
+    Thread myThread;
+    ThreadStart threadStart;
+    private void Awake()
+    {
+        //myThread = new Thread(new ParameterizedThreadStart( PathFinder.FindPath(Vector3Int.RoundToInt(this.transform.position), Vector3Int.RoundToInt(previousTargetTransform))));
+        //myThread = new Thread(delegate { PathFinder.FindPath(Vector3Int.RoundToInt(this.transform.position), Vector3Int.RoundToInt(previousTargetTransform)); });
+        myThread = new Thread(() => PathFinder.FindPath(Vector3Int.RoundToInt(transform.position), Vector3Int.RoundToInt(previousTargetTransform)));
+    }
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         previousTargetTransform = targetTransform.position;
+
+        PathFinder = new AStar();
+        PathFinder.grid = new Grid(50, 50);
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        CheckIfPlayerMovedAndFindPath(Vector3Int.RoundToInt(this.transform.position), Vector3Int.RoundToInt(previousTargetTransform));
-        if (aStar.finalPath.Count > 0)
+        if (CheckIfPlayerMoved())
+        {
+            //PathFinder.FindPath(Vector3Int.RoundToInt(this.transform.position), Vector3Int.RoundToInt(previousTargetTransform));
+            if (myThread.IsAlive == false)
+            {
+                Debug.Log("Thread was not alive, new thread started " + myThread.IsAlive);
+                myThread.Start();
+
+            }
+        }
+
+        if (PathFinder.finalPath.Count > 0)
         {
             MoveAlongPath(rb);
-            if(transform.position == aStar.finalPath[aStar.finalPath.Count - 1].worldPos)
+
+            if (transform.position == PathFinder.finalPath[PathFinder.finalPath.Count - 1].worldPos)
             {
                 rb.velocity = Vector3.zero;
+                //Debug.Log("Enemy distance is " + Vector3.Distance(this.transform.position, targetTransform.position)); 
             }
         }
     }
-    public void CheckIfPlayerMovedAndFindPath(Vector3Int start, Vector3Int end)
+    /// <summary>
+    /// Has the target moved far away enough to warrant a new path being found?
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <returns></returns>
+    public bool CheckIfPlayerMoved()
     {
-        if (Vector3.Distance(previousTargetTransform, targetTransform.position) >= 5)//Has the target moved far away enough to warrant a new path being found?
-        {                                                                                                     //The number 10 could really be any value we want.
+        //Debug.Log("Searching for player");
+        if (Vector3.Distance(previousTargetTransform, targetTransform.position) >= chaseRange) 
+        {
+            Debug.Log("Target moved far away");
             previousTargetTransform = targetTransform.position;
             targetNodeIndex = 0;
-            aStar.FindPath(/*Vector3Int.RoundToInt(this.transform.position)*/ start, end /*Vector3Int.RoundToInt(previousTargetTransform*/);
+
+            return true;
+
+        }
+        else
+        {
+            return false;
         }
     }
     public void MoveAlongPath(Rigidbody pathFollower)
     {
-        pathFollower.transform.position = Vector3.MoveTowards(pathFollower.transform.position, aStar.finalPath[targetNodeIndex].worldPos, moveSpeed * Time.deltaTime);
-        if ((transform.position - aStar.finalPath[targetNodeIndex].worldPos).magnitude <= 0.01f)//Is agent pos roughly the same as index pos?
+        pathFollower.transform.position = Vector3.MoveTowards(pathFollower.transform.position, PathFinder.finalPath[targetNodeIndex].worldPos, moveSpeed * Time.deltaTime);
+        if ((transform.position - PathFinder.finalPath[targetNodeIndex].worldPos).magnitude <= 0.01f)//Is agent pos roughly the same as index pos?
         {
-            if (targetNodeIndex < aStar.finalPath.Count - 1)
+            if (targetNodeIndex < PathFinder.finalPath.Count - 1)
             {
                 targetNodeIndex++;
-                Debug.Log("Target node index is " + targetNodeIndex);
+                //Debug.Log("Target node index is " + targetNodeIndex);
             }
+        }
+    }
+
+    public void ThreadFunction()
+    {
+        Debug.Log("This thread works");
+    }
+
+    public Thread StartTheThread(Vector3Int start, Vector3Int end)
+    {
+        var t = new Thread(() => PathFinder.FindPath(start, end));
+        t.Start();
+        Debug.Log("Eureaka");
+        return t;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = new Color(0, 0, 1, 1f);
+        for (int x = 0; x < cellCountXX + 1; x++)
+        {
+            Gizmos.DrawLine((Vector3.zero + new Vector3(x * cellSizeX, 0, 0)), new Vector3(x * cellSizeX, 0, cellSizeZ * cellCountZ));
+        }
+        for (int z = 0; z < cellCountZ + 1; z++)
+        {
+            Gizmos.DrawLine((Vector3.zero + new Vector3(0, 0, z * cellSizeZ)), new Vector3(cellSizeX * cellCountXX, 0, z * cellSizeZ));
+        }
+
+        for (int i = 0; i < PathFinder.finalPath.Count; i++)
+        {
+            Gizmos.color = Color.white;
+            Gizmos.DrawSphere(PathFinder.finalPath[i].worldPos, (PathFinder.grid.cellSizeX * PathFinder.grid.cellSizeZ) / 3f);
+
         }
     }
 }

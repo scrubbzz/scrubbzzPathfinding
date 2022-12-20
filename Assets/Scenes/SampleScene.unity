@@ -229,8 +229,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 68630086}
-  - component: {fileID: 68630085}
-  - component: {fileID: 68630087}
   m_Layer: 0
   m_Name: LineBruh
   m_TagString: Untagged
@@ -238,22 +236,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &68630085
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 68630084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ad05879ccbda3447be36ec8badd0fc3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cellCountX: 50
-  cellCountZ: 50
-  cellSizeX: 1
-  cellSizeZ: 1
 --- !u!4 &68630086
 Transform:
   m_ObjectHideFlags: 0
@@ -269,19 +251,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &68630087
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 68630084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51586dad60e7a3c4bb3a690e9074dd04, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  grid: {fileID: 68630085}
 --- !u!1 &508339811
 GameObject:
   m_ObjectHideFlags: 0
@@ -295,8 +264,6 @@ GameObject:
   - component: {fileID: 508339814}
   - component: {fileID: 508339817}
   - component: {fileID: 508339813}
-  - component: {fileID: 508339812}
-  - component: {fileID: 508339818}
   - component: {fileID: 508339819}
   m_Layer: 0
   m_Name: Enemyyy
@@ -305,28 +272,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &508339812
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 508339811}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15475a478a647194bbe34b1fd14a2640, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  aStar: {fileID: 68630087}
-  start: {x: 0, y: 0, z: 0}
-  end: {x: 3, y: 1, z: 9}
-  rb: {fileID: 0}
-  moveSpeed: 10
-  targetNodeIndex: 0
-  targetTransform: {fileID: 829939111}
-  shouldMove: 0
-  previousTargetTransform: {x: 0, y: 0, z: 0}
-  findPath: 0
 --- !u!65 &508339813
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -421,21 +366,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
---- !u!114 &508339818
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 508339811}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07a70c6431e94df4a8828d14380b95fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  aStar: {fileID: 68630087}
-  start: {x: 1, y: 0, z: 3}
-  end: {x: 9, y: 0, z: 6}
 --- !u!114 &508339819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -448,9 +378,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1f9fa66c76550e44b1d0895d7061683, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  aStar: {fileID: 68630087}
-  start: {x: 0, y: 0, z: 0}
-  end: {x: 0, y: 0, z: 0}
   rb: {fileID: 0}
   targetTransform: {fileID: 829939111}
   targetNodeIndex: 0
@@ -485,7 +412,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15475a478a647194bbe34b1fd14a2640, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  aStar: {fileID: 68630087}
   start: {x: 2, y: 0, z: 0}
   end: {x: 6, y: 0, z: 3}
   rb: {fileID: 0}
