@@ -38,10 +38,11 @@ public class Enemy3 : MonoBehaviour
     public float moveSpeed;
 
     public Vector3 previousTargetTransform;//Agent needs to move to a specific spot the target was on at somepoint, this variable saves that point.
-    private bool findingPath;
 
     Thread myThread;
     ThreadStart threadStart;
+
+    public bool boolButton;
     private void Awake()
     {
         //myThread = new Thread(new ParameterizedThreadStart( PathFinder.FindPath(Vector3Int.RoundToInt(this.transform.position), Vector3Int.RoundToInt(previousTargetTransform))));
@@ -51,30 +52,43 @@ public class Enemy3 : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        chaseRange = 10;
         rb = GetComponent<Rigidbody>();
         previousTargetTransform = targetTransform.position;
 
         PathFinder = new AStar();
         PathFinder.grid = new Grid(50, 50);
-
+        if(myThread == null)
+        {
+            Debug.Log("MY THREAD IS NULL");
+        }
     }
 
     // Update is called once per frame
     void Update()
-    {
+    {/*
+        if (boolButton)
+        {
+            myThread.Start();
+        }*/
         if (CheckIfPlayerMoved())
         {
             //PathFinder.FindPath(Vector3Int.RoundToInt(this.transform.position), Vector3Int.RoundToInt(previousTargetTransform));
-            if (myThread.IsAlive == false)
+            if (!myThread.IsAlive && !PathFinder.working)
             {
-                Debug.Log("Thread was not alive, new thread started " + myThread.IsAlive);
                 myThread.Start();
-
+                Debug.Log("Is the thread alive?: " + myThread.IsAlive);
+                //myThread.Join();
+            }
+            else
+            {
+                Debug.Log("The thread is alive!!!!");
             }
         }
 
         if (PathFinder.finalPath.Count > 0)
         {
+            Debug.Log("YOUVE FOUND A PATH");
             MoveAlongPath(rb);
 
             if (transform.position == PathFinder.finalPath[PathFinder.finalPath.Count - 1].worldPos)
@@ -93,12 +107,11 @@ public class Enemy3 : MonoBehaviour
     public bool CheckIfPlayerMoved()
     {
         //Debug.Log("Searching for player");
-        if (Vector3.Distance(previousTargetTransform, targetTransform.position) >= chaseRange) 
+        if (Vector3.Distance(previousTargetTransform, targetTransform.position) >= chaseRange)
         {
-            Debug.Log("Target moved far away");
+            //Debug.Log("Target moved far away");
             previousTargetTransform = targetTransform.position;
             targetNodeIndex = 0;
-
             return true;
 
         }
@@ -144,12 +157,15 @@ public class Enemy3 : MonoBehaviour
         {
             Gizmos.DrawLine((Vector3.zero + new Vector3(0, 0, z * cellSizeZ)), new Vector3(cellSizeX * cellCountXX, 0, z * cellSizeZ));
         }
-
-        for (int i = 0; i < PathFinder.finalPath.Count; i++)
+       /* if (PathFinder.finalPath.Count > 0)
         {
-            Gizmos.color = Color.white;
-            Gizmos.DrawSphere(PathFinder.finalPath[i].worldPos, (PathFinder.grid.cellSizeX * PathFinder.grid.cellSizeZ) / 3f);
+            for (int i = 0; i < PathFinder.finalPath.Count; i++)
+            {
+                Gizmos.color = Color.white;
+                Gizmos.DrawSphere(PathFinder.finalPath[i].worldPos, (PathFinder.grid.cellSizeX * PathFinder.grid.cellSizeZ) / 3f);
 
-        }
+            }
+
+        }*/
     }
 }

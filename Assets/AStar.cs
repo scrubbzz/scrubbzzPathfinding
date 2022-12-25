@@ -24,7 +24,7 @@ public class AStar
     public void FindPath(Vector3Int startNodeGrid, Vector3Int endNodeGrid)
     {
         //Debug.Log("THE THREAD WORKS BRO");
-        working = true;
+        working = true;//This function should only be called if a path has not already been found.
          FindPathPrivate(startNodeGrid, endNodeGrid);
         working = false;
     }
@@ -124,6 +124,7 @@ public class AStar
         endNode = grid.GetNode(endNodeGrid);
         currentNode = startNode;
         openList.Add(currentNode);
+        //Debug.Log("Everything cleared");
         return !(startNode is null || endNode is null);
     }
 
